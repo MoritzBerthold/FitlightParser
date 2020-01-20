@@ -4,7 +4,7 @@ import csv
 from typing import List
 from typing import Dict
 import tkinter as tk
-from tkinter.filedialog import askdirectory
+from tkinter.filedialog import askdirectory, askopenfilenames
 from FitlightExport import FitlightColumn
 from FitlightExport import FitlightOutputColumn
 
@@ -56,15 +56,15 @@ def ensure_dir(file_path: str):
         os.makedirs(directory)
 
 def get_directories():
-    input_dir = askdirectory(mustexist=True, initialdir=os.getcwd(), title='Please select an input directory')
-    if not os.path.isdir(input_dir):
-        print('No valid input directory has been chosen. Exiting!')
+    inputFiles = askopenfilenames(initialdir=os.getcwd(), title='Please select the input files')
+    if isinstance(inputFiles, List) and not inputFiles:
+        print('No valid input files have been chosen. Exiting!')
         exit()
     output_dir = askdirectory(mustexist=True, initialdir=os.getcwd(), title='Please select an output directory')
     if not os.path.isdir(output_dir):
         print('No valid output directory has been chosen. Exiting!')
         exit()
-    return input_dir, output_dir
+    return inputFiles, output_dir
 
 def get_file(dir: str, file: str):
     return os.path.join(os.path.abspath(dir), file).replace('\\', '/')
@@ -73,10 +73,9 @@ def main():
     root = tk.Tk()
     root.withdraw()
 
-    input_dir, output_dir = get_directories()
+    inputFiles, output_dir = get_directories()
     file_count = 0
-    for input_file in os.listdir(input_dir):
-        input_file = get_file(input_dir, input_file)
+    for input_file in inputFiles:
         if os.path.isfile(input_file) and input_file.endswith(".csv"):
             print(f"Working on file: {input_file}")
             name, ext = os.path.splitext(os.path.basename(input_file))
